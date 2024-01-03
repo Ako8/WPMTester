@@ -1,0 +1,17 @@
+.right-word {
+    color: #18a801;
+}
+
+.wrong-word {
+    color: #ff0000;
+}
+
+.day-mode {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.night-mode {
+    background-color: rgba(26, 26, 26, 0.83);
+    color: #ffffff;
+}

@@ -8,30 +8,15 @@
           type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <style>
-        .right-word {
-            color: #18a801;
-        }
-
-        .wrong-word {
-            color: #ff0000;
-        }
-
-        .day-mode {
-            background-color: #ffffff;
-            color: #000000;
-        }
-
-        .night-mode {
-            background-color: rgba(26, 26, 26, 0.83);
-            color: #ffffff;
-        }
-    </style>
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
 </head>
-<body class="{% if session['theme'] == 'day' %}day-mode{% else %}night-mode{% endif %}">
+<body class="{% if session['theme'] == 'day' %}day-mode{% else %}night-mode{% endif %}" >
 
-<div class="shadow-lg justify-content-center align-items-center"
-     style="height: 100vh; display: flex; flex-direction: column">
+
+
+
+<div class="justify-content-center align-items-center"
+     style="; display: flex; flex-direction: column">
     <div class="m-5">
         <div class="mx-auto shadow-lg p-4" style="width: 70rem; font-size: 25px; border-radius: 20px;">
             <span id="30"
@@ -112,112 +97,18 @@
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
-        integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
-        crossorigin="anonymous"></script>
-<script type="text/javascript" charset="utf-8">
-    var socket = io();
-    var countdown = 60;
-    var timerInterval;
-    var gameIsOver = false;
-    var displayed = false
 
 
-    function sendSetupEvent(value) {
-        socket.emit('setup', {'letters': value});
-        location.reload();
-    }
-
-    socket.on('new_word', function (data) {
-        displayWords(data.word, data.result)
-        document.getElementById('typedWord').value = '';
-        document.getElementById('result').textContent = '';
-        gameIsOver = false;
-
-        function updateTimer() {
-            document.getElementById('time').textContent = countdown;
-        }
-
-        updateTimer();
-
-        document.getElementById('typedWord').addEventListener('input', function () {
-            if (gameIsOver) {
-                this.value = '';
-                return;
-            }
-            if (!timerInterval) {
-                timerInterval = setInterval(function () {
-                    countdown--;
-                    updateTimer();
-
-                    if (countdown <= 0) {
-                        clearInterval(timerInterval);
-                        document.getElementById('result').textContent = 'Time is up! Game over.';
-                        gameIsOver = true;
-                    }
-                }, 1000);
-            }
-        });
-    });
-
-    function displayWords(words) {
-        const wordList = document.getElementById('text');
-
-        if (displayed) {
-            wordList.innerHTML = '';
-        }
-
-        words.forEach(function (word) {
-            const wordElement = document.createElement('span');
-            wordElement.textContent = `${word.word} `;
-            wordElement.id = `word-${word.id}`;
 
 
-            if (word.result === "right") {
-                wordElement.classList.add('right-word');
-            } else if (word.result === "wrong") {
-                wordElement.classList.add('wrong-word');
-            }
-
-            wordList.appendChild(wordElement);
-        });
-        displayed = true;
 
 
-    }
 
-    socket.on('game_over', function (data) {
-        clearInterval(timerInterval);
-        document.getElementById('result').textContent = 'WPM: ' + data.wpm;
-        gameIsOver = true;
-    });
 
-    document.getElementById('resetButton').addEventListener('click', function () {
-        countdown = 60
-        socket.emit('reset_game');
-    });
 
-    socket.on('game_reset', function () {
-        clearInterval(timerInterval);
-        document.getElementById('text').textContent = '';
-        document.getElementById('typedWord').value = '';
-        document.getElementById('result').textContent = '';
-        document.getElementById('time').textContent = '';
-        gameIsOver = false;
-    });
-
-    document.getElementById('typedWord').addEventListener('keydown', function (event) {
-        if (event.key === ' ' && !gameIsOver) {
-            var typedWord = this.value;
-            socket.emit('check_word', {'word': typedWord, 'took': 60 - countdown});
-        }
-    });
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
-        integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
-        integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
-        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='index.js') }}" type="text/javascript" charset="utf-8"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
 </body>
 </html>

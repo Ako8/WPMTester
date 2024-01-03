@@ -4,11 +4,13 @@ from datetime import datetime
 from flask import Flask, render_template, session, redirect, url_for, request
 from flask_socketio import SocketIO, emit
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'sdadasdasdasdsad'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.sqlite3'
 socketio = SocketIO(app)
+CORS(app)
 db = SQLAlchemy(app)
 
 
