@@ -1,9 +1,9 @@
-var socket = io.connect('http://wpmtester.onrender.com');
+var socket = io();
 var countdown = 60;
 var timerInterval;
 var gameIsOver = false;
 var displayed = false
-
+var username;
 
 function sendSetupEvent(value) {
     socket.emit('setup', {'letters': value});
@@ -91,6 +91,18 @@ socket.on('game_reset', function () {
 document.getElementById('typedWord').addEventListener('keydown', function (event) {
     if (event.key === ' ' && !gameIsOver) {
         var typedWord = this.value;
-        socket.emit('check_word', {'word': typedWord, 'took': 60 - countdown});
+        socket.emit('check_word', {'word': typedWord, 'took': 60 - countdown, 'name': username});
     }
+});
+
+
+var inputElement = document.getElementById('name');
+
+var savedValue = localStorage.getItem('inputValue');
+if (savedValue) {
+    inputElement.value = savedValue;
+}
+username = savedValue
+inputElement.addEventListener('input', function () {
+    localStorage.setItem('inputValue', inputElement.value);
 });

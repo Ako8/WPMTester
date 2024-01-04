@@ -4,13 +4,11 @@ from datetime import datetime
 from flask import Flask, render_template, session, redirect, url_for, request
 from flask_socketio import SocketIO, emit
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'sdadasdasdasdsad'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.sqlite3'
 socketio = SocketIO(app)
-CORS(app)
 db = SQLAlchemy(app)
 
 
@@ -41,7 +39,7 @@ def dict_lyrics(lyrics):
 current_word_index = 0
 start_time = None
 numbe_of_letters = 60
-default_username = 'user_undefiend'
+default_username = 'user_undefied'
 
 
 @app.route('/<theme>')
@@ -62,6 +60,7 @@ def home():
 
     song = Song.query.get(1)
     leaderboard = LeaderBoard.query.order_by(LeaderBoard.wpm.desc()).all()
+
     if song:
         if song.id == 1:
             common_words_list = song.lyrics.split()
@@ -90,6 +89,8 @@ def handle_check_word(data):
     if current_word_index == step_count - 1 and data['word'] == lyrics_dict[current_word_index]['word']:
         wpm = calculate_wpm(lyrics_dict, data['took'])
         time = data['took']
+        if 'name' in data:
+            default_username = data['name']
         add_to_leaderboard(wpm, time, numbe_of_letters, default_username)
         emit('game_over', {'wpm': wpm})
     elif data['word'] == lyrics_dict[current_word_index]['word']:
@@ -115,7 +116,6 @@ def reset_game():
 def setup(data):
     global numbe_of_letters
     numbe_of_letters = data['letters']
-    print(data['letters'])
     return redirect(url_for('home'))
 
 
@@ -128,13 +128,19 @@ def calculate_wpm(words, sec_took):
 
 
 def add_to_leaderboard(wpm, time, words, username):
-    new_lead = LeaderBoard(
-        wpm=wpm,
-        time=time,
-        words=words,
-        username=username
-    )
-    db.session.add(new_lead)
+    lead = LeaderBoard.query.filter_by(username=username).first()
+    print(lead.wpm)
+    if lead:
+        if wpm > lead.wpm:
+            lead.wpm = wpm
+    else:
+        new_lead = LeaderBoard(
+            wpm=wpm,
+            time=time,
+            words=words,
+            username=username
+        )
+        db.session.add(new_lead)
     db.session.commit()
     db.session.close()
 
